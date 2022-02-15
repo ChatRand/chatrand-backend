@@ -1,0 +1,72 @@
+/* eslint-disable require-jsdoc */
+class Queue {
+  constructor() {
+    this.users = [];
+  }
+
+  addUser(user) {
+    this.users.push(user);
+  }
+
+  removeFirst() {
+    if (this.isEmpty()) {
+      return 'No users left to remove';
+    }
+
+    return this.users.shift();
+  }
+
+  removeUser(socketId) {
+    if (this.isEmpty()) {
+      return 'No user left to remove';
+    }
+
+    this.users = this.users.filter((item) => item != socketId);
+    return 'removed';
+  }
+
+  checkUserAvailability(user) {
+    if (this.users.indexOf(user) !== -1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  getCount() {
+    return this.users.length;
+  }
+
+  getFront() {
+    if (this.isEmpty()) {
+      return null;
+    }
+
+    return this.users[0];
+  }
+
+  isEmpty() {
+    return this.user.length == 0;
+  }
+
+  takeOutFront() {
+    if (this.isEmpty()) {
+      return null;
+    }
+
+    const user = this.getFront();
+    this.removeFirst();
+    return user;
+  }
+
+  isEmpty() {
+    return this.users.length == 0;
+  }
+
+  printQueue() {
+    console.table(this.users);
+  }
+}
+
+module.exports = {
+  Queue,
+};
