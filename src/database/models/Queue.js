@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
 class Queue {
   constructor() {
@@ -6,6 +7,10 @@ class Queue {
 
   addUser(user) {
     this.users.push(user);
+  }
+
+  addUserAtFirst(user) {
+    this.users.unshift(user);
   }
 
   removeFirst() {
@@ -65,8 +70,14 @@ class Queue {
   printQueue() {
     console.table(this.users);
   }
+
+  getQueue() {
+    return this.users;
+  }
 }
 
+const queue = new Queue();
+
 module.exports = {
-  Queue,
+  queue,
 };

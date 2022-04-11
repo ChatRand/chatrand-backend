@@ -1,6 +1,4 @@
 /* eslint-disable max-len */
-const {Queue} = require('./database/models/Queue');
-
 const options = {
   cors: {
     origin: '*',
@@ -10,32 +8,35 @@ const options = {
 
 const io = require('socket.io')(options);
 // eslint-disable-next-line no-var
-const queue = new Queue();
+// const queue = new Queue();
+const {queue} = require('./database/models/Queue');
+
 const matchedUsers = new Map();
 
 io.on('connection', (socket) => {
   const socketId = socket.id;
 
-  socket.emit('welcome', {
-    message: 'welcome to chatRand',
-    socketId: socket.id,
-  });
-
   socket.on('searchForMatch', (data) => {
+    // console.log(data);
     queue.addUser({
       socketId: socketId,
-      userName: null,
+      telegramId: null,
       client: 'web',
+      // gender: data.gender,
+      // preferedGender: data.preferedGender,
     });
-
     socket.emit('searching', {
       message: 'we are looking for a match for you',
     });
 
-
     if (queue.getCount() >= 2) {
       const firstUser = queue.takeOutFront();
       const secondUser = queue.takeOutFront();
+
+      if (secondUser == null) {
+        queue.addUserAtFirst(firstUser);
+        return;
+      }
 
       const user1 = {
         user: firstUser,
@@ -51,17 +52,47 @@ io.on('connection', (socket) => {
       const second = user2.user.socketId;
 
       matchedUsers.set(first, user1);
-      socket.to(first).emit('matched', {message: 'You have been matched! You can chat now.'});
       matchedUsers.set(second, user2);
-      socket.to(second).emit('matched', {message: 'You have been matched! You can chat now.'});
+
+      if (first == socketId) {
+        socket.emit('matched', {
+          message: 'You have been matched! you can chat now.',
+        });
+        socket.to(second).emit('matched', {
+          message: 'You have been matched! you can chat now.',
+        });
+      } else if (second == socketId) {
+        socket.emit('matched', {
+          message: 'You have been matched! you can chat now.',
+        });
+        socket.to(first).emit('matched', {
+          message: 'You have been matched! you can chat now.',
+        });
+      } else {
+        socket.to(first).emit('matched', {
+          message: 'You have been matched! you can chat now.',
+        });
+        socket.to(second).emit('matched', {
+          message: 'You have been matched! you can chat now.',
+        });
+      }
     }
   });
 
   socket.on('anonymousMessage', (data) => {
-    const sender = socketId;
-    const receiver = matchedUsers.get(sender).matchedTo.socketId;
+    if (matchedUsers.get(socketId)) {
+      const sender = socketId;
+      const receiver = matchedUsers.get(sender).matchedTo.socketId;
 
-    socket.to(receiver).emit('message', {message: data.message});
+      socket.to(receiver).emit('message', {message: data.message});
+    }
+  });
+
+  socket.on('typing', (data) => {
+    if (matchedUsers.get(socketId)) {
+      const receiver = matchedUsers.get(socketId).matchedTo.socketId;
+      socket.to(receiver).emit('typing');
+    }
   });
 
   socket.on('leaveChat', (data) => {
@@ -71,7 +102,9 @@ io.on('connection', (socket) => {
       matchedUsers.delete(socketId);
       matchedUsers.delete(matchedTo);
 
-      socket.to(matchedTo).emit('left', {message: 'The user has left the chat feel free to look for new match.'});
+      socket.to(matchedTo).emit('left', {
+        message: 'The user has left the chat feel free to look for new match.',
+      });
     }
   });
 

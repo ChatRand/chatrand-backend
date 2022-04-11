@@ -6,7 +6,11 @@ const {successResponse, errorResponse} = require('../../utils/responses');
 const _ = require('lodash');
 
 const botMainController = asyncHandler(async (req, res) => {
-  console.log(req.body);
+  const update = req.body;
+
+  if (update.message) {
+    console.log(update.message);
+  }
 
   return successResponse(res,
       {}, '');
