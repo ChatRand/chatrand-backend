@@ -38,6 +38,71 @@ class Queue {
     }
   }
 
+  matchUser(socketId, matchedUsers) {
+    if (queue.getCount() >= 2) {
+      const firstUser = queue.takeOutFront();
+      const secondUser = queue.takeOutFront();
+
+      if (secondUser == null) {
+        queue.addUserAtFirst(firstUser);
+        return;
+      }
+
+      const user1 = {
+        user: firstUser,
+        matchedTo: secondUser,
+      };
+
+      const user2 = {
+        user: secondUser,
+        matchedTo: firstUser,
+      };
+
+      const first = user1.user.socketId;
+      const second = user2.user.socketId;
+
+      matchedUsers.set(first, user1);
+      matchedUsers.set(second, user2);
+
+      if (first == socketId) {
+        return [
+          {
+            socketId: first,
+            currentSocket: true,
+          },
+          {
+            socketId: second,
+            currentSocket: false,
+          },
+        ];
+      } else if (second == socketId) {
+        return [
+          {
+            socketId: first,
+            currentSocket: false,
+          },
+          {
+            socketId: second,
+            currentSocket: true,
+          },
+        ];
+      } else {
+        return [
+          {
+            socketId: first,
+            currentSocket: false,
+          },
+          {
+            socketId: second,
+            currentSocket: false,
+          },
+        ];
+      }
+    } else {
+      return [];
+    }
+  }
+
   getCount() {
     return this.users.length;
   }

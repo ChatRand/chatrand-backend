@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+const {serverLogger} = require('../helpers/logger/serverLogger.js');
 const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
   socket.on('searchForMatch', (data) => {
     // console.log(data);
@@ -13,53 +14,23 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
       message: 'we are looking for a match for you',
     });
 
-    if (queue.getCount() >= 2) {
-      const firstUser = queue.takeOutFront();
-      const secondUser = queue.takeOutFront();
+    // Get the matched users here and send them messages
+    const matchedUsersList = queue.matchUser(socketId, matchedUsers);
 
-      if (secondUser == null) {
-        queue.addUserAtFirst(firstUser);
-        return;
-      }
-
-      const user1 = {
-        user: firstUser,
-        matchedTo: secondUser,
-      };
-
-      const user2 = {
-        user: secondUser,
-        matchedTo: firstUser,
-      };
-
-      const first = user1.user.socketId;
-      const second = user2.user.socketId;
-
-      matchedUsers.set(first, user1);
-      matchedUsers.set(second, user2);
-
-      if (first == socketId) {
-        socket.emit('matched', {
-          message: 'You have been matched! you can chat now.',
-        });
-        socket.to(second).emit('matched', {
-          message: 'You have been matched! you can chat now.',
-        });
-      } else if (second == socketId) {
-        socket.emit('matched', {
-          message: 'You have been matched! you can chat now.',
-        });
-        socket.to(first).emit('matched', {
-          message: 'You have been matched! you can chat now.',
-        });
-      } else {
-        socket.to(first).emit('matched', {
-          message: 'You have been matched! you can chat now.',
-        });
-        socket.to(second).emit('matched', {
-          message: 'You have been matched! you can chat now.',
-        });
-      }
+    if (matchedUsersList.length == 2) {
+      matchedUsersList.forEach((user) => {
+        if (user.currentSocket) {
+          socket.emit('matched', {
+            message: 'You have been matched! you can chat now.',
+          });
+          serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.socketId}`);
+        } else {
+          socket.to(user.socketId).emit('matched', {
+            message: 'You have been matched! you can chat now.',
+          });
+          serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.socketId}`);
+        }
+      });
     }
   });
 
@@ -69,6 +40,7 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
       const receiver = matchedUsers.get(sender).matchedTo.socketId;
 
       socket.to(receiver).emit('message', {message: data.message});
+      serverLogger.info(`User with socket id: '${sender}' sent message to user with socket id: '${receiver}'`);
     }
   });
 
@@ -89,6 +61,7 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
       socket.to(matchedTo).emit('left', {
         message: 'The user has left the chat feel free to look for new match.',
       });
+      serverLogger.info(`User with socket id: '${socketId}' left the chat he/she had with user with socket id: '${matchedTo}'`);
     }
   });
 
@@ -104,6 +77,7 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
       matchedUsers.delete(matchedTo);
 
       socket.to(matchedTo).emit('left', {message: 'The user has left the chat feel free to look for new match.'});
+      serverLogger.info(`User with socket id: '${socketId}' left the chat he/she had with user with socket id: '${matchedTo}'`);
     }
   });
 };
