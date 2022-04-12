@@ -37,6 +37,7 @@ class Queue {
       return false;
     }
   }
+
   getCount() {
     return this.users.length;
   }
