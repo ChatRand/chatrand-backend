@@ -48,21 +48,12 @@ class Queue {
         return;
       }
 
-      const user1 = {
-        user: firstUser,
-        matchedTo: secondUser,
-      };
+      const first = firstUser.socketId;
+      const second = secondUser.socketId;
 
-      const user2 = {
-        user: secondUser,
-        matchedTo: firstUser,
-      };
-
-      const first = user1.user.socketId;
-      const second = user2.user.socketId;
-
-      matchedUsers.set(first, user1);
-      matchedUsers.set(second, user2);
+      // matchedUsers.set(first, user1);
+      // matchedUsers.set(second, user2);
+      matchedUsers.addMatchedUsers(firstUser, secondUser);
 
       if (first == socketId) {
         return [

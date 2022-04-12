@@ -35,9 +35,9 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
   });
 
   socket.on('anonymousMessage', (data) => {
-    if (matchedUsers.get(socketId)) {
+    if (matchedUsers.getOnePair(socketId)) {
       const sender = socketId;
-      const receiver = matchedUsers.get(sender).matchedTo.socketId;
+      const receiver = matchedUsers.getOnePair(sender).matchedTo.socketId;
 
       socket.to(receiver).emit('message', {message: data.message});
       serverLogger.info(`User with socket id: '${sender}' sent message to user with socket id: '${receiver}'`);
@@ -45,18 +45,19 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
   });
 
   socket.on('typing', (data) => {
-    if (matchedUsers.get(socketId)) {
-      const receiver = matchedUsers.get(socketId).matchedTo.socketId;
+    if (matchedUsers.getOnePair(socketId)) {
+      const receiver = matchedUsers.getOnePair(socketId).matchedTo.socketId;
       socket.to(receiver).emit('typing');
     }
   });
 
   socket.on('leaveChat', (data) => {
-    if (matchedUsers.has(socketId)) {
-      const matchedTo = matchedUsers.get(socketId).matchedTo.socketId;
+    if (matchedUsers.checkPairAvailability(socketId)) {
+      const matchedTo = matchedUsers.getOnePair(socketId).matchedTo.socketId;
 
-      matchedUsers.delete(socketId);
-      matchedUsers.delete(matchedTo);
+      // matchedUsers.delete(socketId);
+      // matchedUsers.delete(matchedTo);
+      matchedUsers.unmatchUsers(socketId, matchedTo);
 
       socket.to(matchedTo).emit('left', {
         message: 'The user has left the chat feel free to look for new match.',
@@ -70,11 +71,12 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
       queue.removeUser(socketId);
     }
 
-    if (matchedUsers.has(socketId)) {
-      const matchedTo = matchedUsers.get(socketId).matchedTo.socketId;
+    if (matchedUsers.checkPairAvailability(socketId)) {
+      const matchedTo = matchedUsers.getOnePair(socketId).matchedTo.socketId;
       console.log(matchedTo, socketId);
-      matchedUsers.delete(socketId);
-      matchedUsers.delete(matchedTo);
+      // matchedUsers.delete(socketId);
+      // matchedUsers.delete(matchedTo);
+      matchedUsers.unmatchUsers(socketId, matchedTo);
 
       socket.to(matchedTo).emit('left', {message: 'The user has left the chat feel free to look for new match.'});
       serverLogger.info(`User with socket id: '${socketId}' left the chat he/she had with user with socket id: '${matchedTo}'`);

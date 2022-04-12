@@ -1,9 +1,10 @@
 const asyncHandler = require('../../helpers/error/asyncHandler');
 const {successResponse} = require('../../utils/responses');
-const {queue} = require('../../database/models/Queue');
+// const {queue} = requipre('../../database/models/Queue');
+const {matchedUsers} = require('../../database/models/MatchedUsers');
 
 const getAll = asyncHandler(async (req, res) => {
-  const list = queue.getQueue();
+  const list = matchedUsers.getAll();
 
   return successResponse(res, list, 'Queues List');
 });

@@ -12,7 +12,7 @@ const io = require('socket.io')(options);
 // const queue = new Queue();
 const {queue} = require('./database/models/Queue');
 
-const matchedUsers = new Map();
+const {matchedUsers} = require('./database/models/MatchedUsers');
 
 io.on('connection', (socket) => {
   const socketId = socket.id;
