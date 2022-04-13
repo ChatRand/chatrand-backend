@@ -37,8 +37,12 @@ class MatchedUsers {
   }
 
   getAll() {
-    console.log(matchedUsers);
-    return this.matchedUsers;
+    const users = [];
+    this.matchedUsers.forEach((user) => {
+      users.push(user);
+    });
+
+    return users;
   }
 }
 
