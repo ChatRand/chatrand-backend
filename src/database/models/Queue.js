@@ -26,16 +26,12 @@ class Queue {
       return 'No user left to remove';
     }
 
-    this.users = this.users.filter((item) => item != socketId);
+    this.users = this.users.filter((user) => user.socketId != socketId);
     return 'removed';
   }
 
-  checkUserAvailability(user) {
-    if (this.users.indexOf(user) !== -1) {
-      return true;
-    } else {
-      return false;
-    }
+  checkUserAvailability(socketId) {
+    return this.users.filter((user) => user.socketId == socketId).length > 0;
   }
 
   matchUser(socketId, matchedUsers) {
@@ -51,8 +47,6 @@ class Queue {
       const first = firstUser.socketId;
       const second = secondUser.socketId;
 
-      // matchedUsers.set(first, user1);
-      // matchedUsers.set(second, user2);
       matchedUsers.addMatchedUsers(firstUser, secondUser);
 
       if (first == socketId) {
