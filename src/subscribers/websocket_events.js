@@ -68,7 +68,6 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
 
   socket.on('disconnect', (reason) => {
     if (queue.checkUserAvailability(socketId)) {
-      console.log('true');
       queue.removeUser(socketId);
     }
 
