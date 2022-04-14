@@ -3,13 +3,10 @@ const {serverLogger} = require('../helpers/logger/serverLogger.js');
 const {sendMessage} = require('../services/chatMessages.service');
 const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
   socket.on('searchForMatch', (data) => {
-    // console.log(data);
     queue.addUser({
       socketId: socketId,
       telegramId: null,
       client: 'web',
-      // gender: data.gender,
-      // preferedGender: data.preferedGender,
     });
     socket.emit('searching', {
       message: 'we are looking for a match for you',
@@ -56,8 +53,6 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
     if (matchedUsers.checkPairAvailability(socketId)) {
       const matchedTo = matchedUsers.getOnePair(socketId).matchedTo.socketId;
 
-      // matchedUsers.delete(socketId);
-      // matchedUsers.delete(matchedTo);
       matchedUsers.unmatchUsers(socketId, matchedTo);
 
       socket.to(matchedTo).emit('left', {
@@ -74,9 +69,7 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
 
     if (matchedUsers.checkPairAvailability(socketId)) {
       const matchedTo = matchedUsers.getOnePair(socketId).matchedTo.socketId;
-      console.log(matchedTo, socketId);
-      // matchedUsers.delete(socketId);
-      // matchedUsers.delete(matchedTo);
+
       matchedUsers.unmatchUsers(socketId, matchedTo);
 
       socket.to(matchedTo).emit('left', {message: 'The user has left the chat feel free to look for new match.'});
