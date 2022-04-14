@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 const {serverLogger} = require('../helpers/logger/serverLogger.js');
+const {sendMessage} = require('../services/chatMessages.service');
 const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
   socket.on('searchForMatch', (data) => {
     // console.log(data);
@@ -36,11 +37,11 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
 
   socket.on('anonymousMessage', (data) => {
     if (matchedUsers.getOnePair(socketId)) {
-      const sender = socketId;
-      const receiver = matchedUsers.getOnePair(sender).matchedTo.socketId;
+      const senderId = socketId;
+      const sender = matchedUsers.getOnePair(senderId);
 
-      socket.to(receiver).emit('message', {message: data.message});
-      serverLogger.info(`User with socket id: '${sender}' sent message to user with socket id: '${receiver}'`);
+      sendMessage(data.message, sender);
+      serverLogger.info(`User with socket id: '${sender.user.socketId}' sent message to user with socket id: '${sender.matchedTo.socketId}'`);
     }
   });
 
