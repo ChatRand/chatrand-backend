@@ -1,7 +1,7 @@
 const sendMessage = (message, sender) => {
   switch (sender.matchedTo.client) {
     case 'web':
-      const receiverId = sender.matchedTo.socketId;
+      const receiverId = sender.matchedTo.id;
 
       const currentTime = new Date().toLocaleTimeString('en-US', {
         hour: '2-digit',
