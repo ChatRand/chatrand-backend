@@ -1,11 +1,11 @@
 /* eslint-disable max-len */
 const {serverLogger} = require('../helpers/logger/serverLogger.js');
 const {sendMessage} = require('../services/chatMessages.service');
+
 const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
   socket.on('searchForMatch', (data) => {
     queue.addUser({
-      socketId: socketId,
-      telegramId: null,
+      id: socketId,
       client: 'web',
     });
     socket.emit('searching', {
@@ -21,9 +21,9 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
           socket.emit('matched', {
             message: 'You have been matched! you can chat now.',
           });
-          serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.socketId}`);
+          serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.id}`);
         } else {
-          socket.to(user.socketId).emit('matched', {
+          socket.to(user.id).emit('matched', {
             message: 'You have been matched! you can chat now.',
           });
           serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.socketId}`);
@@ -44,14 +44,14 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
 
   socket.on('typing', (data) => {
     if (matchedUsers.getOnePair(socketId)) {
-      const receiver = matchedUsers.getOnePair(socketId).matchedTo.socketId;
+      const receiver = matchedUsers.getOnePair(socketId).matchedTo.id;
       socket.to(receiver).emit('typing');
     }
   });
 
   socket.on('leaveChat', (data) => {
     if (matchedUsers.checkPairAvailability(socketId)) {
-      const matchedTo = matchedUsers.getOnePair(socketId).matchedTo.socketId;
+      const matchedTo = matchedUsers.getOnePair(socketId).matchedTo.id;
 
       matchedUsers.unmatchUsers(socketId, matchedTo);
 
@@ -68,7 +68,7 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
     }
 
     if (matchedUsers.checkPairAvailability(socketId)) {
-      const matchedTo = matchedUsers.getOnePair(socketId).matchedTo.socketId;
+      const matchedTo = matchedUsers.getOnePair(socketId).matchedTo.id;
 
       matchedUsers.unmatchUsers(socketId, matchedTo);
 

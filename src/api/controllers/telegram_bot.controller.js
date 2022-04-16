@@ -1,15 +1,45 @@
+/* eslint-disable max-len */
 const asyncHandler = require('../../helpers/error/asyncHandler');
 const axios = require('axios');
 const config = require('../../config/config');
 const telegramBotService = require('../../services/telegramBot.service');
 const {successResponse, errorResponse} = require('../../utils/responses');
+const {queue} = require('../../database/models/Queue');
+
 const _ = require('lodash');
 
 const botMainController = asyncHandler(async (req, res) => {
   const update = req.body;
 
   if (update.message) {
-    console.log(update.message);
+    if (update.message.text) {
+      const userId = update.message.from.id;
+
+      switch (update.message.text) {
+        case '/start':
+          console.log(update.message.text);
+          break;
+        case '/searchformatch':
+          const userData = {
+            socketId: null,
+            telegramId: userId,
+            client: 'telegram',
+          };
+
+          queue.addUser(userData);
+          telegramBotService.sendMessage(userId, 'We are looking for  match for you!');
+
+          // const matchedUsersList = queue.matchUser()
+      }
+    } else {
+      if (update.message.photo) {
+
+      } else if (update.message.video) {
+
+      } else if (update.message.voice) {
+
+      }
+    }
   }
 
   return successResponse(res,

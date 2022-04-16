@@ -16,8 +16,8 @@ class MatchedUsers {
       matchedTo: firstUser,
     };
 
-    const first = user1.user.socketId;
-    const second = user2.user.socketId;
+    const first = user1.user.id;
+    const second = user2.user.id;
 
     this.matchedUsers.set(first, user1);
     this.matchedUsers.set(second, user2);
@@ -28,12 +28,12 @@ class MatchedUsers {
     this.matchedUsers.delete(second);
   }
 
-  getOnePair(socketId) {
-    return this.matchedUsers.get(socketId);
+  getOnePair(id) {
+    return this.matchedUsers.get(id);
   }
 
-  checkPairAvailability(socketId) {
-    return this.matchedUsers.has(socketId);
+  checkPairAvailability(id) {
+    return this.matchedUsers.has(id);
   }
 
   getAll() {

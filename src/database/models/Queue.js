@@ -21,20 +21,20 @@ class Queue {
     return this.users.shift();
   }
 
-  removeUser(socketId) {
+  removeUser(id) {
     if (this.isEmpty()) {
       return 'No user left to remove';
     }
 
-    this.users = this.users.filter((user) => user.socketId != socketId);
+    this.users = this.users.filter((user) => user.id != id);
     return 'removed';
   }
 
-  checkUserAvailability(socketId) {
-    return this.users.filter((user) => user.socketId == socketId).length > 0;
+  checkUserAvailability(id) {
+    return this.users.filter((user) => user.id == id).length > 0;
   }
 
-  matchUser(socketId, matchedUsers) {
+  matchUser(id, matchedUsers) {
     if (queue.getCount() >= 2) {
       const firstUser = queue.takeOutFront();
       const secondUser = queue.takeOutFront();
@@ -44,41 +44,43 @@ class Queue {
         return;
       }
 
-      const first = firstUser.socketId;
-      const second = secondUser.socketId;
+      const first = firstUser.id;
+      const second = secondUser.id;
 
       matchedUsers.addMatchedUsers(firstUser, secondUser);
 
-      if (first == socketId) {
+      if (first == id &&
+        firstUser.client == 'web') {
         return [
           {
-            socketId: first,
+            id: first,
             currentSocket: true,
           },
           {
-            socketId: second,
+            id: second,
             currentSocket: false,
           },
         ];
-      } else if (second == socketId) {
+      } else if (second == id &&
+        secondUser.client == 'web') {
         return [
           {
-            socketId: first,
+            id: first,
             currentSocket: false,
           },
           {
-            socketId: second,
+            id: second,
             currentSocket: true,
           },
         ];
       } else {
         return [
           {
-            socketId: first,
+            id: first,
             currentSocket: false,
           },
           {
-            socketId: second,
+            id: second,
             currentSocket: false,
           },
         ];
