@@ -36,9 +36,8 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
     if (matchedUsers.getOnePair(socketId)) {
       const senderId = socketId;
       const sender = matchedUsers.getOnePair(senderId);
-      console.log(sender);
 
-      sendMessage(data.message, sender);
+      sendMessage(data.message, sender, socket);
       serverLogger.info(`User with socket id: '${sender.user.id}' sent message to user with socket id: '${sender.matchedTo.id}'`);
     }
   });
