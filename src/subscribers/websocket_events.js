@@ -26,7 +26,7 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
           socket.to(user.id).emit('matched', {
             message: 'You have been matched! you can chat now.',
           });
-          serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.socketId}`);
+          serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.id}`);
         }
       });
     }
@@ -44,7 +44,7 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
   });
 
   socket.on('typing', (data) => {
-    if (matchedUsers.getOnePair(socketId)) {
+    if (matchedUsers.getOnePair(socketId) && matchedUsers.getOnePair(socketId).matchedTo.client == 'web') {
       const receiver = matchedUsers.getOnePair(socketId).matchedTo.id;
       socket.to(receiver).emit('typing');
     }
