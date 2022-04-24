@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 const {serverLogger} = require('../helpers/logger/serverLogger.js');
 const {sendMessage} = require('../services/chatMessages.service');
+const {sendNotification} = require('../services/notifications.service.js');
 
 const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
   socket.on('searchForMatch', (data) => {
@@ -8,9 +9,15 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
       id: socketId,
       client: 'web',
     });
-    socket.emit('searching', {
-      message: 'we are looking for a match for you',
-    });
+
+    sendNotification({
+      message: 'We are looking for a match for you',
+    },
+    {
+      id: socketId,
+      client: 'web',
+    }, socket,
+    'searching');
 
     // Get the matched users here and send them messages
     const matchedUsersList = queue.matchUser(socketId, matchedUsers);
@@ -36,29 +43,30 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
     if (matchedUsers.getOnePair(socketId)) {
       const senderId = socketId;
       const sender = matchedUsers.getOnePair(senderId);
-      console.log(sender);
 
-      sendMessage(data.message, sender);
+      sendMessage(data.message, sender, socket);
       serverLogger.info(`User with socket id: '${sender.user.id}' sent message to user with socket id: '${sender.matchedTo.id}'`);
     }
   });
 
   socket.on('typing', (data) => {
     if (matchedUsers.getOnePair(socketId) && matchedUsers.getOnePair(socketId).matchedTo.client == 'web') {
-      const receiver = matchedUsers.getOnePair(socketId).matchedTo.id;
-      socket.to(receiver).emit('typing');
+      const receiver = matchedUsers.getOnePair(socketId).matchedTo;
+      sendNotification({}, receiver, socket, 'typing');
     }
   });
 
   socket.on('leaveChat', (data) => {
     if (matchedUsers.checkPairAvailability(socketId)) {
-      const matchedTo = matchedUsers.getOnePair(socketId).matchedTo.id;
+      const matchedTo = matchedUsers.getOnePair(socketId).matchedTo;
 
       matchedUsers.unmatchUsers(socketId, matchedTo);
 
-      socket.to(matchedTo).emit('left', {
-        message: 'The user has left the chat feel free to look for new match.',
-      });
+      sendNotification({
+        message: 'The user has left the chat. Feel free to look for new match',
+      }, matchedTo,
+      socket,
+      'left');
       serverLogger.info(`User with socket id: '${socketId}' left the chat he/she had with user with socket id: '${matchedTo}'`);
     }
   });
@@ -69,11 +77,15 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
     }
 
     if (matchedUsers.checkPairAvailability(socketId)) {
-      const matchedTo = matchedUsers.getOnePair(socketId).matchedTo.id;
+      const matchedTo = matchedUsers.getOnePair(socketId).matchedTo;
 
-      matchedUsers.unmatchUsers(socketId, matchedTo);
+      matchedUsers.unmatchUsers(socketId, matchedTo.id);
 
-      socket.to(matchedTo).emit('left', {message: 'The user has left the chat feel free to look for new match.'});
+      sendNotification({
+        message: 'The user has left the chat. Feel free to look for new match',
+      }, matchedTo,
+      socket,
+      'left');
       serverLogger.info(`User with socket id: '${socketId}' left the chat he/she had with user with socket id: '${matchedTo}'`);
     }
   });
