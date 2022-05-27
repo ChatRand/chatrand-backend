@@ -30,13 +30,23 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
           });
           serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.id}`);
         } else {
-          socket.to(user.id).emit('matched', {
-            message: 'You have been matched! you can chat now.',
+          // socket.to(user.id).emit('matched', {
+          //   message: 'You have been matched! you can chat now.',
+          // });
+          sendNotification({
+            message: 'You have been matched! you can chat now',
+          }, {
+            id: user.id,
+            client: user.client,
           });
           serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.id}`);
         }
       });
     }
+  });
+
+  socket.on('cancelSearch', (data) => {
+    queue.removeUser(socketId);
   });
 
   socket.on('anonymousMessage', (data) => {

@@ -18,6 +18,7 @@ const botMainController = asyncHandler(async (req, res) => {
       switch (update.message.text) {
         case '/start':
           console.log(update.message.text);
+          telegramBotService.sendMessage(userId, 'Welcome to ChatRand. I am delighted to have you😁, So tell me, What is it that you really desire?😉');
           break;
         case '/searchformatch':
           const userData = {
@@ -30,6 +31,7 @@ const botMainController = asyncHandler(async (req, res) => {
           telegramBotService.sendMessage(userId, 'We are looking for  match for you!');
 
           // const matchedUsersList = queue.matchUser()
+          break;
       }
     } else {
       if (update.message.photo) {
