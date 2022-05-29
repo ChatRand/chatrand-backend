@@ -2,6 +2,7 @@
 const {serverLogger} = require('../helpers/logger/serverLogger.js');
 const {sendMessage} = require('../services/chatMessages.service');
 const {sendNotification} = require('../services/notifications.service.js');
+const {emitWebsocketEvent} = require('../services/websocket.service');
 
 const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
   socket.on('searchForMatch', (data) => {
@@ -10,37 +11,18 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
       client: 'web',
     });
 
-    sendNotification({
-      message: 'We are looking for a match for you',
-    },
-    {
-      id: socketId,
-      client: 'web',
-    }, socket,
-    'searching');
+    emitWebsocketEvent(socket, socketId, 'We are looking for a match for you', 'searching');
+
 
     // Get the matched users here and send them messages
-    const matchedUsersList = queue.matchUser(socketId, matchedUsers);
-
+    const matchedUsersList = queue.matchUser(matchedUsers);
     if (matchedUsersList.length == 2) {
       matchedUsersList.forEach((user) => {
-        if (user.currentSocket) {
-          socket.emit('matched', {
-            message: 'You have been matched! you can chat now.',
-          });
-          serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.id}`);
-        } else {
-          // socket.to(user.id).emit('matched', {
-          //   message: 'You have been matched! you can chat now.',
-          // });
-          sendNotification({
-            message: 'You have been matched! you can chat now',
-          }, {
-            id: user.id,
-            client: user.client,
-          });
-          serverLogger.info(`Sent 'matched' confirmation message to socket with socket id: ${user.id}`);
-        }
+        console.log(user);
+        sendNotification({
+          message: 'You have been matched! you can chat now',
+        }, user, socket, 'matched');
+        serverLogger.info(`Sent 'matched' confirmation message to ${user.client} with ${user.client} id: ${user.id}`);
       });
     }
   });

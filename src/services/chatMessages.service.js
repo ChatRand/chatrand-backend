@@ -1,21 +1,21 @@
 const {emitWebsocketEvent} = require('./websocket.service');
+const telegramService = require('./telegramBot.service');
 
 const sendMessage = (message, sender, socket = null) => {
   switch (sender.matchedTo.client) {
     case 'web':
-      const receiverId = sender.matchedTo.id;
-
       const currentTime = new Date().toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
       });
 
-      emitWebsocketEvent(socket, receiverId, {
+      emitWebsocketEvent(socket, sender.matchedTo.id, {
         message: message,
         time: currentTime,
       }, 'message');
       break;
     case 'telegram':
+      telegramService.sendMessage(sender.matchedTo.id, message);
   }
 };
 

@@ -22,8 +22,7 @@ const botMainController = asyncHandler(async (req, res) => {
           break;
         case '/searchformatch':
           const userData = {
-            socketId: null,
-            telegramId: userId,
+            id: userId,
             client: 'telegram',
           };
 

@@ -34,7 +34,7 @@ class Queue {
     return this.users.filter((user) => user.id == id).length > 0;
   }
 
-  matchUser(id, matchedUsers) {
+  matchUser(matchedUsers) {
     if (queue.getCount() >= 2) {
       const firstUser = queue.takeOutFront();
       const secondUser = queue.takeOutFront();
@@ -44,47 +44,15 @@ class Queue {
         return;
       }
 
-      const first = firstUser.id;
-      const second = secondUser.id;
+      // const first = firstUser.id;
+      // const second = secondUser.id;
 
       matchedUsers.addMatchedUsers(firstUser, secondUser);
 
-      if (first == id &&
-        firstUser.client == 'web') {
-        return [
-          {
-            id: first,
-            currentSocket: true,
-          },
-          {
-            id: second,
-            currentSocket: false,
-          },
-        ];
-      } else if (second == id &&
-        secondUser.client == 'web') {
-        return [
-          {
-            id: first,
-            currentSocket: false,
-          },
-          {
-            id: second,
-            currentSocket: true,
-          },
-        ];
-      } else {
-        return [
-          {
-            id: first,
-            currentSocket: false,
-          },
-          {
-            id: second,
-            currentSocket: false,
-          },
-        ];
-      }
+      return [
+        firstUser,
+        secondUser,
+      ];
     } else {
       return [];
     }

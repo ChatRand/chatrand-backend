@@ -3,13 +3,17 @@ const {emitWebsocketEvent} = require('./websocket.service');
 
 /* eslint-disable max-len */
 const sendNotification = (notificationObject, receiver, socket = null, type=null) => {
-  console.log(notificationObject, receiver);
-
-  switch (receiver.client) {
-    case 'web':
-      emitWebsocketEvent(socket, receiver.id, notificationObject, type);
-    case 'telegram':
-      sendMessage(receiver.telegramId, notificationObject.message);
+  try {
+    switch (receiver.client) {
+      case 'web':
+        emitWebsocketEvent(socket, receiver.id, notificationObject.message, type);
+        break;
+      case 'telegram':
+        sendMessage(receiver.id, notificationObject.message);
+        break;
+    }
+  } catch (e) {
+    console.log('err', e);
   }
 };
 
