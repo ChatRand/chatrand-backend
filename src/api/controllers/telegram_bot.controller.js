@@ -4,9 +4,10 @@ const axios = require('axios');
 const config = require('../../config/config');
 const telegramBotService = require('../../services/telegramBot.service');
 const {successResponse, errorResponse} = require('../../utils/responses');
-const {queue} = require('../../database/models/Queue');
+const centralService = require('../../services/central.service');
 
 const _ = require('lodash');
+const {sendNotification} = require('../../services/notifications.service');
 
 const botMainController = asyncHandler(async (req, res) => {
   const update = req.body;
@@ -17,7 +18,6 @@ const botMainController = asyncHandler(async (req, res) => {
 
       switch (update.message.text) {
         case '/start':
-          console.log(update.message.text);
           telegramBotService.sendMessage(userId, 'Welcome to ChatRand. I am delighted to have you😁, So tell me, What is it that you really desire?😉');
           break;
         case '/searchformatch':
@@ -26,10 +26,19 @@ const botMainController = asyncHandler(async (req, res) => {
             client: 'telegram',
           };
 
-          queue.addUser(userData);
-          telegramBotService.sendMessage(userId, 'We are looking for  match for you!');
+          centralService.joinQueue(userData);
 
-          // const matchedUsersList = queue.matchUser()
+          await sendNotification({
+            message: 'We are looking for a match for you',
+          }, userData);
+
+          centralService.lookForMatch();
+          break;
+        case '/leavechat':
+          centralService.leaveMatch(userId);
+          break;
+        default:
+          centralService.sendMessage(update.message.from.id, update.message.text);
           break;
       }
     } else {

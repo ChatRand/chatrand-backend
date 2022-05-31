@@ -1,6 +1,7 @@
 const {queue} = require('../database/models/Queue');
 const {matchedUsers} = require('../database/models/MatchedUsers');
 const {sendNotification} = require('./notifications.service');
+const chatMessagesService = require('./chatMessages.service');
 
 const joinQueue = (user) => {
   queue.addUser(user);
@@ -8,34 +9,35 @@ const joinQueue = (user) => {
 
 const lookForMatch = (socket = null) => {
   const matchedUsersList = queue.matchUser(matchedUsers);
-
   if (matchedUsersList.length == 2) {
-    matchedUsersList.length.forEach((user) => {
-      sendNotification({
+    matchedUsersList.forEach(async (user) => {
+      await sendNotification({
         message: 'You have been matched! You can chat now',
-      }, user, socket, 'matched');
+      }, user, 'matched');
     });
   }
 };
 
 const leaveMatch = (id, socket = null) => {
   if (matchedUsers.checkPairAvailability(id)) {
-    const matchedTo = matchedUsers.getOnePair(id).matchedTo;
+    const user = matchedUsers.getOnePair(id);
 
-    matchedUsers.unmatchUsers(id, matchedTo);
+    matchedUsers.unmatchUsers(id, user.matchedTo.user);
 
     sendNotification({
       message: 'The user has left the chat. Feel free to look for new match',
-    }, matchedTo, socket);
+    }, user.matchedTo, 'left');
+    sendNotification({
+      message: 'You left the chat',
+    }, user.user, 'left');
   }
 };
 
-const sendMessage = (user, message, socket = null) => {
-  if (matchedUsers.getOnePair(user.id)) {
-    const senderId = user.id;
-    const receiver = matchedUsers.getOnePair(senderId);
+const sendMessage = (id, message, socket = null) => {
+  if (matchedUsers.getOnePair(id)) {
+    const sender = matchedUsers.getOnePair(id);
 
-    sendMessage(message, receiver, socket);
+    chatMessagesService.sendMessage(message, sender, socket);
   }
 };
 

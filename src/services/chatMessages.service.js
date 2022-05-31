@@ -9,7 +9,7 @@ const sendMessage = (message, sender, socket = null) => {
         minute: '2-digit',
       });
 
-      emitWebsocketEvent(socket, sender.matchedTo.id, {
+      emitWebsocketEvent(sender.matchedTo.socketInstance, sender.matchedTo.id, {
         message: message,
         time: currentTime,
       }, 'message');
