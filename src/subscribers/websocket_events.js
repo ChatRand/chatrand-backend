@@ -37,7 +37,7 @@ const registerSocketSubscribers = (socket, socketId, queue, matchedUsers) => {
   socket.on('typing', (data) => {
     if (matchedUsers.getOnePair(socketId) && matchedUsers.getOnePair(socketId).matchedTo.client == 'web') {
       const receiver = matchedUsers.getOnePair(socketId).matchedTo;
-      sendNotification({}, receiver, socket, 'typing');
+      sendNotification({}, receiver, 'typing');
     }
   });
 
