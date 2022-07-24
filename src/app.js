@@ -30,6 +30,8 @@ app.use(mongoSanitize());
 // Parse Cookie On req.cookies
 app.use(cookieParser());
 
+// Here will lie the frontend unification logic
+
 connectToDatabase();
 
 app.use(httpLogger);
