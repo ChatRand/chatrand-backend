@@ -1,12 +1,12 @@
 /* eslint-disable max-len */
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const connectToDatabase = require('./database/db');
+// const connectToDatabase = require('./database/db');
 const cors = require('cors');
 const v1Routes = require('./api/routes/v1');
 const helmet = require('helmet');
 
-const mongoSanitize = require('express-mongo-sanitize');
+// const mongoSanitize = require('express-mongo-sanitize');
 
 const {httpLogger} = require('./helpers/logger/serverLogger');
 const Server404Error = require('./helpers/error/Server404Error');
@@ -25,14 +25,14 @@ app.use(helmet());
 app.use(cors());
 app.options('*', cors());
 
-app.use(mongoSanitize());
+// app.use(mongoSanitize());
 
 // Parse Cookie On req.cookies
 app.use(cookieParser());
 
 // Here will lie the frontend unification logic
 
-connectToDatabase();
+// connectToDatabase();
 
 app.use(httpLogger);
 

@@ -7,3 +7,5 @@ node_modules
 .vscode/
 .vscode
 /logs
+
+.DS_Store
