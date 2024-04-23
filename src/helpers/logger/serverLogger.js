@@ -18,7 +18,7 @@ const logFormat = winston.format.printf(({
 const transportOptions = {
   file: {
     level: 'info',
-    filename: 'log.json',
+    filename: '../log.json',
     handleExceptions: true,
     format: winston.format.combine(
         winston.format.timestamp(),
