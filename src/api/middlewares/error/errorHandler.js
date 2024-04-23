@@ -3,6 +3,7 @@ const centralErrorHandler = require('../../../helpers/error/centralErrorHandler'
 
 const errorHandler = (err, req, res, next) => {
   centralErrorHandler(err);
+  console.error(err);
 
   return next(err);
 };

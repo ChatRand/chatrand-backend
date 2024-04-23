@@ -1,15 +1,15 @@
 const jwt = require('jsonwebtoken');
-const customId = require('custom-id');
+// const customId = require('custom-id');
 const UserLogin = require('../database/models/UserLogin');
 const config = require('../config/config');
 const userLoginService = require('../services/userLogins.service');
 
 const createToken = async (user, req) => {
-  const tokenId = await customId({
-    userId: user._id,
-    date: Date.now(),
-    randomLength: 4,
-  });
+  // const tokenId = await customId({
+  //   userId: user._id,
+  //   date: Date.now(),
+  //   randomLength: 4,
+  // });
 
   const ip = (req.headers['x-forwarded-for'] || '').split(',').pop().trim() ||
          req.connection.remoteAddress ||
@@ -31,16 +31,16 @@ const createToken = async (user, req) => {
     }
   });
 
-  const tokenSecret = await customId({
-    tokenSecret: ip,
-    date: Date.now(),
-    randomLength: 8,
-  });
+  // const tokenSecret = await customId({
+  //   tokenSecret: ip,
+  //   date: Date.now(),
+  //   randomLength: 8,
+  // });
 
   const userInfo = {
     userId: user._id,
-    tokenId: tokenId,
-    tokenSecret: tokenSecret,
+    // tokenId: tokenId,
+    // tokenSecret: tokenSecret,
     ipAddress: ip,
     device: req.headers['user-agent'],
   };
